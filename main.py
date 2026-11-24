@@ -28,10 +28,11 @@ Why it wins against the judge's brief, in the brief's own order:
 
 import os
 
-REVIEW = (
-    "One star. My pillow is cool on exactly one side, "
-    "and it is never the side I am lying on."
-)
+# The review, built from its two sentences: the grievance (the cool
+# side is never yours) and the sting that lands it.
+GRIEVANCE = "One star. My pillow is cool on exactly one side, "
+STING = "and it is never the side I am lying on."
+REVIEW = GRIEVANCE + STING
 
 
 def main() -> None:
@@ -48,9 +49,13 @@ def main() -> None:
     # readable by everyone. Never chmod /output itself.
     os.chmod(path, 0o644)
     # Verify the written review by reading it back: the entry on disk
-    # must be exactly the review this program produced.
-    with open(path, encoding="utf-8") as f:
-        assert f.read() == text, "written review differs from the review"
+    # must be exactly the review this program produced, one line,
+    # 88 characters, no trailing newline, nothing added.
+    with open(path, "rb") as f:
+        raw = f.read()
+    assert raw == text.encode("utf-8"), "written review differs"
+    assert len(raw) == len(text), "written review length differs"
+    assert b"\n" not in raw, "written review must be a single line"
 
 
 if __name__ == "__main__":
